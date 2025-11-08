@@ -51,7 +51,6 @@
     "@octokit/rest": "22.0.0",
     "@openauthjs/openauth": "0.0.0-20250322224806",
     "@opencode-ai/plugin": "1.0.45",
-    "@opencode-ai/script": "1.0.45",
     "@opencode-ai/sdk": "1.0.45",
     "@opentui/core": "0.1.39",
     "@opentui/solid": "0.1.39",
