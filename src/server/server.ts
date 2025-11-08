@@ -82,7 +82,6 @@ function errors(...codes: number[]) {
 
 export namespace Server {
   const log = Log.create({ service: "server" })
-
   export const Event = {
     Connected: Bus.event("server.connected", z.object({})),
   }

@@ -11,7 +11,7 @@ import { withTimeout } from "@/util/timeout"
 
 export namespace MCP {
   const log = Log.create({ service: "mcp" })
-
+ 
   export const Failed = NamedError.create(
     "MCPFailed",
     z.object({

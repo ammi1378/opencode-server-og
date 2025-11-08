@@ -9,6 +9,7 @@
     "test": "bun test",
     "build": "./script/build.ts",
     "dev": "bun run --conditions=browser ./src/index.ts",
+    "dev:server": "bun run  --hot ./src/dev-server.ts",
     "random": "echo 'Random script updated at $(date)'"
   },
   "bin": {
