@@ -1,12 +1,6 @@
 import { Log } from "../util/log"
 import { Bus } from "../bus"
-import {
-  describeRoute,
-  generateSpecs,
-  validator,
-  resolver,
-  openAPIRouteHandler,
-} from "hono-openapi"
+import { describeRoute, generateSpecs, validator, resolver, openAPIRouteHandler } from "hono-openapi"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { stream, streamSSE } from "hono/streaming"
@@ -256,9 +250,7 @@ export namespace Server {
               id: t.id,
               description: t.description,
               // Handle both Zod schemas and plain JSON schemas
-              parameters: (t.parameters as any)?._def
-                ? zodToJsonSchema(t.parameters as any)
-                : t.parameters,
+              parameters: (t.parameters as any)?._def ? zodToJsonSchema(t.parameters as any) : t.parameters,
             })),
           )
         },
@@ -755,7 +747,7 @@ export namespace Server {
         validator(
           "query",
           z.object({
-            limit: z.coerce.number(),
+            limit: z.coerce.number().optional(),
           }),
         ),
         async (c) => {
@@ -826,7 +818,7 @@ export namespace Server {
         ),
         async (c) => {
           const params = c.req.valid("param")
-          const message = await Session.getMessage({
+          const message = await MessageV2.get({
             sessionID: params.id,
             messageID: params.messageID,
           })
@@ -1085,10 +1077,7 @@ export namespace Server {
           const providers = await Provider.list().then((x) => mapValues(x, (item) => item.info))
           return c.json({
             providers: Object.values(providers),
-            default: mapValues(
-              providers,
-              (item) => Provider.sort(Object.values(item.models))[0].id,
-            ),
+            default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
           })
         },
       )
@@ -1356,6 +1345,36 @@ export namespace Server {
         }),
         async (c) => {
           return c.json(await MCP.status())
+        },
+      )
+      .post(
+        "/mcp",
+        describeRoute({
+          description: "Add MCP server dynamically",
+          operationId: "mcp.add",
+          responses: {
+            200: {
+              description: "MCP server added successfully",
+              content: {
+                "application/json": {
+                  schema: resolver(z.record(z.string(), MCP.Status)),
+                },
+              },
+            },
+            ...errors(400),
+          },
+        }),
+        validator(
+          "json",
+          z.object({
+            name: z.string(),
+            config: Config.Mcp,
+          }),
+        ),
+        async (c) => {
+          const { name, config } = c.req.valid("json")
+          const result = await MCP.add(name, config)
+          return c.json(result.status)
         },
       )
       .get(
@@ -1652,10 +1671,7 @@ export namespace Server {
         ),
         async (c) => {
           const evt = c.req.valid("json")
-          await Bus.publish(
-            Object.values(TuiEvent).find((def) => def.type === evt.type)!,
-            evt.properties,
-          )
+          await Bus.publish(Object.values(TuiEvent).find((def) => def.type === evt.type)!, evt.properties)
           return c.json(true)
         },
       )
